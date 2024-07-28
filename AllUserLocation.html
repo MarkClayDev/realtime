@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Leaflet Map</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        #map { height: 100vh; } /* Style to make map div full screen */
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        var map = L.map('map').setView([0, 0], 19); // Set initial zoom level to 19
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+        }).addTo(map);
+        
+        var currentMarker = null;
+
+        function onLocationFound(e) {
+            // Update or create the main marker for the current location
+            if (currentMarker) {
+                currentMarker.setLatLng(e.latlng).setPopupContent("You are here").openPopup();
+            } else {
+                currentMarker = L.marker(e.latlng).addTo(map).bindPopup("You are here").openPopup();
+            }
+
+            // Add a light red marker for the trail
+            L.circleMarker(e.latlng, {
+                radius: 0,
+                color: '#ff6666',
+                fillColor: '#ff9999',
+                fillOpacity: 0.3
+            }).addTo(map);
+        }
+
+        function onLocationError(e) {
+            alert("Geolocation error: " + e.message + "\nPlease enable location services in your browser settings.");
+            map.setView([0, 0], 2);
+        }
+
+        // Listen for location found and error events
+        map.on('locationfound', onLocationFound);
+        map.on('locationerror', onLocationError);
+
+        // Attempt to locate the user's position with options to set view and max zoom
+        map.locate({setView: true, maxZoom: 19, watch: true, enableHighAccuracy: true});
+    </script>
+</body>
+</html>
